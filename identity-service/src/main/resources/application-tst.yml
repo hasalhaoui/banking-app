@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/identity_tst}
+    username: ${DB_USERNAME:identity_tst}
+    password: ${DB_PASSWORD:identity_tst}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:test}
+            client-secret: ${GOOGLE_CLIENT_SECRET:test}
+            scope: openid,email,profile
+logging.level:
+  root: INFO
+  com.example.banking: DEBUG
+identity.security:
+  allowed-origins:
+    - ${APP_ALLOWED_ORIGIN:http://localhost:8080}
+  jwt:
+    issuer: banking-identity-tst
+    secret: ${JWT_SECRET:tst-banking-secret-change-me-at-least-32-bytes}
+    ttl: PT1H

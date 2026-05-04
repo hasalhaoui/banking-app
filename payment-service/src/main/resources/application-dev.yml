@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5436/payment_db}
+    username: ${DB_USERNAME:payment}
+    password: ${DB_PASSWORD:payment}
+  kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+logging.level:
+  root: INFO
+  com.example.banking: DEBUG
+payment.security:
+  allowed-origins:
+    - ${APP_ALLOWED_ORIGIN:http://localhost:8080}
+  jwt:
+    issuer: banking-identity-dev
+    secret: ${JWT_SECRET:dev-banking-secret-change-me-at-least-32-bytes}
+    ttl: PT2H

@@ -1,0 +1,10 @@
+logging.level:
+  root: INFO
+  com.example.banking: DEBUG
+gateway.security:
+  allowed-origins:
+    - ${APP_ALLOWED_ORIGIN:http://localhost:8080}
+  jwt:
+    issuer: banking-identity-dev
+    secret: ${JWT_SECRET:dev-banking-secret-change-me-at-least-32-bytes}
+    ttl: PT2H

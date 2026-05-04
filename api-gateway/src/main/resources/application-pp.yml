@@ -1,0 +1,8 @@
+logging.level.root: INFO
+gateway.security:
+  allowed-origins:
+    - ${APP_ALLOWED_ORIGIN}
+  jwt:
+    issuer: ${JWT_ISSUER:banking-identity-pp}
+    secret: ${JWT_SECRET}
+    ttl: PT30M

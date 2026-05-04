@@ -1,0 +1,149 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: banking
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: api-gateway }
+  template:
+    metadata:
+      labels: { app: api-gateway }
+    spec:
+      containers:
+        - name: app
+          image: registry.example.com/banking/api-gateway:latest
+          ports: [{ containerPort: 8080 }]
+          envFrom:
+            - configMapRef: { name: banking-config }
+            - secretRef: { name: banking-secret }
+          readinessProbe: { httpGet: { path: /actuator/health, port: 8080 }, initialDelaySeconds: 20, periodSeconds: 10 }
+          livenessProbe: { httpGet: { path: /actuator/health, port: 8080 }, initialDelaySeconds: 45, periodSeconds: 20 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-service
+  namespace: banking
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: identity-service }
+  template:
+    metadata:
+      labels: { app: identity-service }
+    spec:
+      containers:
+        - name: app
+          image: registry.example.com/banking/identity-service:latest
+          ports: [{ containerPort: 8081 }]
+          env:
+            - { name: SERVER_PORT, value: "8081" }
+            - { name: DB_URL, valueFrom: { secretKeyRef: { name: banking-secret, key: IDENTITY_DB_URL } } }
+            - { name: DB_USERNAME, valueFrom: { secretKeyRef: { name: banking-secret, key: DB_USERNAME } } }
+            - { name: DB_PASSWORD, valueFrom: { secretKeyRef: { name: banking-secret, key: DB_PASSWORD } } }
+          envFrom:
+            - configMapRef: { name: banking-config }
+            - secretRef: { name: banking-secret }
+          readinessProbe: { httpGet: { path: /actuator/health, port: 8081 }, initialDelaySeconds: 30, periodSeconds: 10 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-service
+  namespace: banking
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: profile-service }
+  template:
+    metadata:
+      labels: { app: profile-service }
+    spec:
+      containers:
+        - name: app
+          image: registry.example.com/banking/profile-service:latest
+          ports: [{ containerPort: 8082 }]
+          env:
+            - { name: SERVER_PORT, value: "8082" }
+            - { name: DB_URL, valueFrom: { secretKeyRef: { name: banking-secret, key: PROFILE_DB_URL } } }
+          envFrom:
+            - configMapRef: { name: banking-config }
+            - secretRef: { name: banking-secret }
+          readinessProbe: { httpGet: { path: /actuator/health, port: 8082 }, initialDelaySeconds: 30, periodSeconds: 10 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: account-service
+  namespace: banking
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: account-service }
+  template:
+    metadata:
+      labels: { app: account-service }
+    spec:
+      containers:
+        - name: app
+          image: registry.example.com/banking/account-service:latest
+          ports: [{ containerPort: 8083 }]
+          env:
+            - { name: SERVER_PORT, value: "8083" }
+            - { name: DB_URL, valueFrom: { secretKeyRef: { name: banking-secret, key: ACCOUNT_DB_URL } } }
+          envFrom:
+            - configMapRef: { name: banking-config }
+            - secretRef: { name: banking-secret }
+          readinessProbe: { httpGet: { path: /actuator/health, port: 8083 }, initialDelaySeconds: 30, periodSeconds: 10 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: banking
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: payment-service }
+  template:
+    metadata:
+      labels: { app: payment-service }
+    spec:
+      containers:
+        - name: app
+          image: registry.example.com/banking/payment-service:latest
+          ports: [{ containerPort: 8084 }]
+          env:
+            - { name: SERVER_PORT, value: "8084" }
+            - { name: DB_URL, valueFrom: { secretKeyRef: { name: banking-secret, key: PAYMENT_DB_URL } } }
+          envFrom:
+            - configMapRef: { name: banking-config }
+            - secretRef: { name: banking-secret }
+          readinessProbe: { httpGet: { path: /actuator/health, port: 8084 }, initialDelaySeconds: 30, periodSeconds: 10 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: banking
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: notification-service }
+  template:
+    metadata:
+      labels: { app: notification-service }
+    spec:
+      containers:
+        - name: app
+          image: registry.example.com/banking/notification-service:latest
+          ports: [{ containerPort: 8085 }]
+          env:
+            - { name: SERVER_PORT, value: "8085" }
+            - { name: DB_URL, valueFrom: { secretKeyRef: { name: banking-secret, key: NOTIFICATION_DB_URL } } }
+          envFrom:
+            - configMapRef: { name: banking-config }
+            - secretRef: { name: banking-secret }
+          readinessProbe: { httpGet: { path: /actuator/health, port: 8085 }, initialDelaySeconds: 30, periodSeconds: 10 }

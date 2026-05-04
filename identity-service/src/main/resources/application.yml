@@ -1,0 +1,36 @@
+server:
+  port: ${SERVER_PORT:8081}
+spring:
+  application:
+    name: identity-service
+  profiles:
+    default: dev
+  threads:
+    virtual:
+      enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        acks: all
+        enable.idempotence: true
+        retries: 10
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+management.endpoints.web.exposure.include: health,info,metrics
+springdoc.swagger-ui.path: /swagger-ui.html
+identity:
+  kafka:
+    customer-registered-topic: customer-registered
+  risk:
+    max-failed-login-attempts: 5

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Identity Login</title>
+    <link rel="stylesheet" th:href="@{/css/identity.css}">
+</head>
+<body class="auth-page">
+<main class="auth-card">
+    <h1>Banking Identity</h1>
+    <p>Sign in with strong credentials or use your configured Google OAuth2 provider.</p>
+    <form th:action="@{/login}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <label>Username or email<input name="username" autocomplete="username" required></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit">Sign in</button>
+    </form>
+    <a class="oauth-link" th:href="@{/oauth2/authorization/google}">Continue with Google</a>
+    <p class="error" th:if="${param.error}">Authentication failed.</p>
+</main>
+</body>
+</html>

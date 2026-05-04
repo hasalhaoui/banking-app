@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Banking Platform Gateway</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="topbar">
+    <strong>International Banking Platform</strong>
+    <nav>
+        <a href="/swagger-ui.html">Gateway API</a>
+        <a href="/login">Sign in</a>
+    </nav>
+</header>
+<main class="page">
+    <section class="hero">
+        <h1>Banking account management microservices</h1>
+        <p>Secure customer profiles, accounts, payments, beneficiaries, notifications, KYC, audit-ready events and operational APIs.</p>
+    </section>
+    <section class="service-grid">
+        <article><span>Identity</span><code th:text="${services.identityUrl}">http://identity-service:8081</code></article>
+        <article><span>Profiles</span><code th:text="${services.profileUrl}">http://profile-service:8082</code></article>
+        <article><span>Accounts</span><code th:text="${services.accountUrl}">http://account-service:8083</code></article>
+        <article><span>Payments</span><code th:text="${services.paymentUrl}">http://payment-service:8084</code></article>
+        <article><span>Notifications</span><code th:text="${services.notificationUrl}">http://notification-service:8085</code></article>
+    </section>
+</main>
+</body>
+</html>

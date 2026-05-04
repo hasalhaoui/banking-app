@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5434/profile_tst}
+    username: ${DB_USERNAME:profile_tst}
+    password: ${DB_PASSWORD:profile_tst}
+  kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+logging.level.root: INFO
+profile.security:
+  allowed-origins:
+    - ${APP_ALLOWED_ORIGIN:http://localhost:8080}
+  jwt:
+    issuer: banking-identity-tst
+    secret: ${JWT_SECRET:tst-banking-secret-change-me-at-least-32-bytes}
+    ttl: PT1H

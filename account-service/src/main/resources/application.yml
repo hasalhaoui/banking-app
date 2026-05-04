@@ -1,0 +1,33 @@
+server.port: ${SERVER_PORT:8083}
+spring:
+  application.name: account-service
+  profiles.default: dev
+  threads.virtual.enabled: true
+  jpa:
+    open-in-view: false
+    hibernate.ddl-auto: validate
+    properties.hibernate.jdbc.time_zone: UTC
+  flyway.enabled: true
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        acks: all
+        enable.idempotence: true
+        retries: 10
+management.endpoints.web.exposure.include: health,info,metrics
+springdoc.swagger-ui.path: /swagger-ui.html
+account:
+  kafka:
+    topics:
+      account-opened: account-opened
+      account-frozen: account-frozen
+      transaction-posted: transaction-posted
+    outbox:
+      poll-interval: PT10S
+      batch-size: 50
+      max-attempts: 10
+  limits:
+    default-currency: EUR
+    default-daily-transfer-limit: 5000.00

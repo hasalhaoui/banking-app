@@ -1,0 +1,22 @@
+server.port: ${SERVER_PORT:8085}
+spring:
+  application.name: notification-service
+  profiles.default: dev
+  threads.virtual.enabled: true
+  jpa:
+    open-in-view: false
+    hibernate.ddl-auto: validate
+    properties.hibernate.jdbc.time_zone: UTC
+  flyway.enabled: true
+  kafka:
+    consumer:
+      group-id: notification-service
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+management.endpoints.web.exposure.include: health,info,metrics
+springdoc.swagger-ui.path: /swagger-ui.html
+notification.kafka:
+  subscribed-topics: customer-registered,profile-kyc-submitted,account-opened,account-frozen,transaction-posted,payment-initiated,payment-approved,payment-executed,payment-rejected
+  consumer-group: notification-service

@@ -1,0 +1,78 @@
+stages:
+  - build
+  - test
+  - docker_build
+  - docker_push
+  - kubernetes_deploy
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  SERVICES: "api-gateway identity-service profile-service account-service payment-service notification-service"
+  IMAGE_PREFIX: "$CI_REGISTRY_IMAGE"
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - .m2/repository
+
+build:
+  stage: build
+  image: maven:3.9-eclipse-temurin-21
+  script:
+    - mvn -B -DskipTests package
+  artifacts:
+    paths:
+      - "*/target/*.jar"
+    expire_in: 1 week
+
+test:
+  stage: test
+  image: maven:3.9-eclipse-temurin-21
+  services:
+    - name: docker:27-dind
+      command: ["--tls=false"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    TESTCONTAINERS_RYUK_DISABLED: "true"
+  script:
+    - mvn -B test
+
+docker_build:
+  stage: docker_build
+  image: docker:27
+  services:
+    - docker:27-dind
+  script:
+    - for service in $SERVICES; do docker build --build-arg MODULE=$service -t "$IMAGE_PREFIX/$service:$CI_COMMIT_SHA" -t "$IMAGE_PREFIX/$service:latest" .; done
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
+
+docker_push:
+  stage: docker_push
+  image: docker:27
+  services:
+    - docker:27-dind
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
+  script:
+    - for service in $SERVICES; do docker build --build-arg MODULE=$service -t "$IMAGE_PREFIX/$service:$CI_COMMIT_SHA" -t "$IMAGE_PREFIX/$service:latest" .; docker push "$IMAGE_PREFIX/$service:$CI_COMMIT_SHA"; docker push "$IMAGE_PREFIX/$service:latest"; done
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+kubernetes_deploy:
+  stage: kubernetes_deploy
+  image: bitnami/kubectl:1.32
+  script:
+    - kubectl config use-context "$KUBE_CONTEXT"
+    - kubectl apply -f k8s/namespace.yaml
+    - kubectl apply -f k8s/configmap.yaml
+    - kubectl apply -f k8s/secret.yaml
+    - kubectl apply -f k8s/deployments.yaml
+    - kubectl apply -f k8s/services.yaml
+    - kubectl rollout status deployment/api-gateway -n banking
+  environment:
+    name: production
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual

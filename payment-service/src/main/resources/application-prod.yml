@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    properties:
+      security.protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
+      sasl.mechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+      sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG:}
+logging.level:
+  root: WARN
+  com.example.banking: INFO
+payment.security:
+  allowed-origins:
+    - ${APP_ALLOWED_ORIGIN}
+  jwt:
+    issuer: ${JWT_ISSUER:banking-identity}
+    secret: ${JWT_SECRET}
+    ttl: PT20M

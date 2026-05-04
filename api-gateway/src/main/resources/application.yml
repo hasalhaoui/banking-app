@@ -1,0 +1,13 @@
+server.port: ${SERVER_PORT:8080}
+spring:
+  application.name: api-gateway
+  profiles.default: dev
+  threads.virtual.enabled: true
+management.endpoints.web.exposure.include: health,info,metrics
+springdoc.swagger-ui.path: /swagger-ui.html
+gateway.services:
+  identity-url: ${IDENTITY_URL:http://localhost:8081}
+  profile-url: ${PROFILE_URL:http://localhost:8082}
+  account-url: ${ACCOUNT_URL:http://localhost:8083}
+  payment-url: ${PAYMENT_URL:http://localhost:8084}
+  notification-url: ${NOTIFICATION_URL:http://localhost:8085}

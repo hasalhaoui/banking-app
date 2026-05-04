@@ -1,0 +1,8 @@
+logging.level.root: INFO
+gateway.security:
+  allowed-origins:
+    - ${APP_ALLOWED_ORIGIN:http://localhost:8080}
+  jwt:
+    issuer: banking-identity-tst
+    secret: ${JWT_SECRET:tst-banking-secret-change-me-at-least-32-bytes}
+    ttl: PT1H
