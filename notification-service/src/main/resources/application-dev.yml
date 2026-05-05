@@ -1,8 +1,19 @@
 spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: validate
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    validate-on-migrate: true
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5437/notification_db}
-    username: ${DB_USERNAME:notification}
-    password: ${DB_PASSWORD:notification}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/notification_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1999}
+    hikari:
+      initializationFailTimeout: 60000
   kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 logging.level:
   root: INFO
@@ -14,3 +25,7 @@ notification.security:
     issuer: banking-identity-dev
     secret: ${JWT_SECRET:dev-banking-secret-change-me-at-least-32-bytes}
     ttl: PT2H
+logging:
+  level:
+    org.flywaydb: DEBUG
+    org.springframework.boot.autoconfigure.flyway: DEBUG

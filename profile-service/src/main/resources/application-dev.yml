@@ -1,12 +1,27 @@
 spring:
+#  jpa:
+#    hibernate:
+#      ddl-auto: validate
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: validate
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5434/profile_db}
-    username: ${DB_USERNAME:profile}
-    password: ${DB_PASSWORD:profile}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/profile_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1999}
+    hikari:
+      initializationFailTimeout: 60000
   kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-logging.level:
-  root: INFO
-  com.example.banking: DEBUG
 profile.security:
   allowed-origins:
     - ${APP_ALLOWED_ORIGIN:http://localhost:8080}
@@ -14,3 +29,8 @@ profile.security:
     issuer: banking-identity-dev
     secret: ${JWT_SECRET:dev-banking-secret-change-me-at-least-32-bytes}
     ttl: PT2H
+logging:
+  level:
+    org.flywaydb: TRACE
+    root: INFO
+    com.example.banking: DEBUG

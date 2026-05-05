@@ -3,8 +3,8 @@ package com.example.banking.account.kafka;
 import com.example.banking.account.entity.OutboxEvent;
 import com.example.banking.account.repository.OutboxEventRepository;
 import com.example.banking.common.kafka.BankingEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,7 +28,7 @@ public class OutboxEventService {
                     .topic(topic)
                     .payload(objectMapper.writeValueAsString(event))
                     .build());
-        } catch (JsonProcessingException exception) {
+        } catch (JacksonException exception) {
             throw new IllegalStateException("Unable to serialize account event", exception);
         }
     }

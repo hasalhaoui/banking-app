@@ -4,8 +4,8 @@ import com.example.banking.common.error.KafkaProcessingException;
 import com.example.banking.common.kafka.BankingEvent;
 import com.example.banking.notification.config.NotificationProperties;
 import com.example.banking.notification.service.NotificationService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -26,7 +26,7 @@ public class BankingEventConsumer {
         try {
             BankingEvent event = objectMapper.readValue(payload, BankingEvent.class);
             notificationService.createFromEvent(event, topic, properties.kafka().consumerGroup());
-        } catch (JsonProcessingException exception) {
+        } catch (JacksonException exception) {
             throw new KafkaProcessingException("Unable to deserialize banking event", exception);
         }
     }

@@ -2,8 +2,8 @@ package com.example.banking.profile.kafka;
 
 import com.example.banking.common.kafka.BankingEvent;
 import com.example.banking.profile.config.ProfileProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -18,8 +18,12 @@ public class ProfileEventPublisher {
 
     public void publishKycSubmitted(BankingEvent event) {
         try {
-            kafkaTemplate.send(properties.kafka().kycSubmittedTopic(), event.getAggregateId(), objectMapper.writeValueAsString(event));
-        } catch (JsonProcessingException exception) {
+            kafkaTemplate.send(
+                    properties.kafka().kycSubmittedTopic(),
+                    event.getAggregateId(),
+                    objectMapper.writeValueAsString(event)
+            );
+        } catch (JacksonException exception) {
             throw new IllegalStateException("Unable to serialize profile event", exception);
         }
     }

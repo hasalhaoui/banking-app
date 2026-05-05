@@ -2,8 +2,8 @@ package com.example.banking.identity.kafka;
 
 import com.example.banking.common.kafka.BankingEvent;
 import com.example.banking.identity.config.IdentityProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -13,14 +13,17 @@ import org.springframework.stereotype.Service;
 public class IdentityEventPublisher {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;  // tools.jackson.databind.ObjectMapper
     private final IdentityProperties properties;
 
     public void publishCustomerRegistered(BankingEvent event) {
         try {
-            kafkaTemplate.send(properties.kafka().customerRegisteredTopic(), event.getAggregateId(),
-                    objectMapper.writeValueAsString(event));
-        } catch (JsonProcessingException exception) {
+            kafkaTemplate.send(
+                    properties.kafka().customerRegisteredTopic(),
+                    event.getAggregateId(),
+                    objectMapper.writeValueAsString(event)
+            );
+        } catch (JacksonException exception) {  // tools.jackson.core.JacksonException
             throw new IllegalStateException("Unable to serialize identity event", exception);
         }
     }

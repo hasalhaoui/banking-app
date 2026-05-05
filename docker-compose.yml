@@ -3,7 +3,6 @@ services:
     image: confluentinc/cp-zookeeper:7.8.0
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
 
@@ -17,13 +16,15 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+  # ================= DATABASES =================
 
   identity-db:
     image: postgres:17-alpine
@@ -31,6 +32,10 @@ services:
       POSTGRES_DB: identity_db
       POSTGRES_USER: identity
       POSTGRES_PASSWORD: identity
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U identity -d identity_db"]
+      interval: 5s
+      retries: 5
     ports:
       - "5433:5432"
 
@@ -40,6 +45,10 @@ services:
       POSTGRES_DB: profile_db
       POSTGRES_USER: profile
       POSTGRES_PASSWORD: profile
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U profile -d profile_db"]
+      interval: 5s
+      retries: 5
     ports:
       - "5434:5432"
 
@@ -49,6 +58,10 @@ services:
       POSTGRES_DB: account_db
       POSTGRES_USER: account
       POSTGRES_PASSWORD: account
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U account -d account_db"]
+      interval: 5s
+      retries: 5
     ports:
       - "5435:5432"
 
@@ -58,6 +71,10 @@ services:
       POSTGRES_DB: payment_db
       POSTGRES_USER: payment
       POSTGRES_PASSWORD: payment
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U payment -d payment_db"]
+      interval: 5s
+      retries: 5
     ports:
       - "5436:5432"
 
@@ -67,129 +84,131 @@ services:
       POSTGRES_DB: notification_db
       POSTGRES_USER: notification
       POSTGRES_PASSWORD: notification
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notification -d notification_db"]
+      interval: 5s
+      retries: 5
     ports:
       - "5437:5432"
 
-  identity-service:
-    build:
-      context: .
-      args:
-        MODULE: identity-service
-    depends_on:
-      - identity-db
-      - kafka
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      SERVER_PORT: 8081
-      DB_URL: jdbc:postgresql://identity-db:5432/identity_db
-      DB_USERNAME: identity
-      DB_PASSWORD: identity
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      JWT_SECRET: local-banking-secret-change-me-at-least-32-bytes
-      APP_ALLOWED_ORIGIN: http://localhost:8080
-    ports:
-      - "8081:8081"
-
-  profile-service:
-    build:
-      context: .
-      args:
-        MODULE: profile-service
-    depends_on:
-      - profile-db
-      - kafka
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      SERVER_PORT: 8082
-      DB_URL: jdbc:postgresql://profile-db:5432/profile_db
-      DB_USERNAME: profile
-      DB_PASSWORD: profile
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      JWT_SECRET: local-banking-secret-change-me-at-least-32-bytes
-      APP_ALLOWED_ORIGIN: http://localhost:8080
-    ports:
-      - "8082:8082"
-
-  account-service:
-    build:
-      context: .
-      args:
-        MODULE: account-service
-    depends_on:
-      - account-db
-      - kafka
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      SERVER_PORT: 8083
-      DB_URL: jdbc:postgresql://account-db:5432/account_db
-      DB_USERNAME: account
-      DB_PASSWORD: account
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      JWT_SECRET: local-banking-secret-change-me-at-least-32-bytes
-      APP_ALLOWED_ORIGIN: http://localhost:8080
-    ports:
-      - "8083:8083"
-
-  payment-service:
-    build:
-      context: .
-      args:
-        MODULE: payment-service
-    depends_on:
-      - payment-db
-      - kafka
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      SERVER_PORT: 8084
-      DB_URL: jdbc:postgresql://payment-db:5432/payment_db
-      DB_USERNAME: payment
-      DB_PASSWORD: payment
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      JWT_SECRET: local-banking-secret-change-me-at-least-32-bytes
-      APP_ALLOWED_ORIGIN: http://localhost:8080
-    ports:
-      - "8084:8084"
-
-  notification-service:
-    build:
-      context: .
-      args:
-        MODULE: notification-service
-    depends_on:
-      - notification-db
-      - kafka
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      SERVER_PORT: 8085
-      DB_URL: jdbc:postgresql://notification-db:5432/notification_db
-      DB_USERNAME: notification
-      DB_PASSWORD: notification
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      JWT_SECRET: local-banking-secret-change-me-at-least-32-bytes
-      APP_ALLOWED_ORIGIN: http://localhost:8080
-    ports:
-      - "8085:8085"
-
-  api-gateway:
-    build:
-      context: .
-      args:
-        MODULE: api-gateway
-    depends_on:
-      - identity-service
-      - profile-service
-      - account-service
-      - payment-service
-      - notification-service
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
-      SERVER_PORT: 8080
-      JWT_SECRET: local-banking-secret-change-me-at-least-32-bytes
-      APP_ALLOWED_ORIGIN: http://localhost:8080
-      IDENTITY_URL: http://identity-service:8081
-      PROFILE_URL: http://profile-service:8082
-      ACCOUNT_URL: http://account-service:8083
-      PAYMENT_URL: http://payment-service:8084
-      NOTIFICATION_URL: http://notification-service:8085
-    ports:
-      - "8080:8080"
+  # ================= SERVICES =================
+#
+#  identity-service:
+#    build:
+#      context: .
+#      dockerfile: identity-service/Dockerfile
+#    depends_on:
+#      identity-db:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_started
+#    environment:
+#      SERVER_PORT: 8081
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://identity-db:5432/identity_db
+#      SPRING_DATASOURCE_USERNAME: identity
+#      SPRING_DATASOURCE_PASSWORD: identity
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+#    ports:
+#      - "8081:8081"
+#
+#  profile-service:
+#    build:
+#      context: .
+#      dockerfile: profile-service/Dockerfile
+#    depends_on:
+#      profile-db:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_started
+#    environment:
+#      SPRING_PROFILES_ACTIVE: dev
+#      SERVER_PORT: 8082
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://profile-db:5432/profile_db
+#      SPRING_DATASOURCE_USERNAME: profile
+#      SPRING_DATASOURCE_PASSWORD: profile
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+#      JWT_SECRET: local-banking-secret-change-me-at-least-32-bytes
+#      APP_ALLOWED_ORIGIN: http://localhost:8080
+#    ports:
+#      - "8082:8082"
+#
+#  account-service:
+#    build:
+#      context: .
+#      dockerfile: account-service/Dockerfile
+#    depends_on:
+#      account-db:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_started
+#    environment:
+#      SERVER_PORT: 8083
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://account-db:5432/account_db
+#      SPRING_DATASOURCE_USERNAME: account
+#      SPRING_DATASOURCE_PASSWORD: account
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+#    ports:
+#      - "8083:8083"
+#
+#  payment-service:
+#    build:
+#      context: .
+#      dockerfile: payment-service/Dockerfile
+#    depends_on:
+#      payment-db:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_started
+#    environment:
+#      SERVER_PORT: 8084
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://payment-db:5432/payment_db
+#      SPRING_DATASOURCE_USERNAME: payment
+#      SPRING_DATASOURCE_PASSWORD: payment
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+#      JWT_SECRET: local-banking-secret-change-me-at-least-32-bytes
+#      APP_ALLOWED_ORIGIN: http://localhost:8080
+#    ports:
+#      - "8084:8084"
+#
+#  notification-service:
+#    build:
+#      context: .
+#      dockerfile: notification-service/Dockerfile
+#    depends_on:
+#      notification-db:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_started
+#    environment:
+#      SERVER_PORT: 8085
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://notification-db:5432/notification_db
+#      SPRING_DATASOURCE_USERNAME: notification
+#      SPRING_DATASOURCE_PASSWORD: notification
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+#      JWT_SECRET: local-banking-secret-change-me-at-least-32-bytes
+#      APP_ALLOWED_ORIGIN: http://localhost:8080
+#    ports:
+#      - "8085:8085"
+#
+#  api-gateway:
+#    build:
+#      context: .
+#      dockerfile: api-gateway/Dockerfile
+#    depends_on:
+#      - identity-service
+#      - profile-service
+#      - account-service
+#      - payment-service
+#      - notification-service
+#    environment:
+#      SPRING_PROFILES_ACTIVE: dev
+#      SERVER_PORT: 8080
+#      JWT_SECRET: local-banking-secret-change-me-at-least-32-bytes
+#      APP_ALLOWED_ORIGIN: http://localhost:8080
+#      IDENTITY_URL: http://identity-service:8081
+#      PROFILE_URL: http://profile-service:8082
+#      ACCOUNT_URL: http://account-service:8083
+#      PAYMENT_URL: http://payment-service:8084
+#      NOTIFICATION_URL: http://notification-service:8085
+#    ports:
+#      - "8080:8080"
