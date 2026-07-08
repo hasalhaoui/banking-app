@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"/>
+
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Application -->
+    <logger name="com.example.banking" level="TRACE"/>
+
+    <!-- Spring -->
+    <logger name="org.springframework" level="DEBUG"/>
+    <logger name="org.springframework.web" level="TRACE"/>
+    <logger name="org.springframework.security" level="TRACE"/>
+
+    <!-- Hibernate -->
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/>
+    <logger name="org.hibernate.type.descriptor.sql" level="TRACE"/>
+
+    <!-- Transactions -->
+    <logger name="org.springframework.transaction" level="TRACE"/>
+
+    <!-- Kafka -->
+    <logger name="org.springframework.kafka" level="TRACE"/>
+    <logger name="org.apache.kafka" level="TRACE"/>
+
+    <!-- Flyway -->
+    <logger name="org.flywaydb" level="TRACE"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>
