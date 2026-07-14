@@ -11,7 +11,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/profile_db}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:1999}
+    password: ${DB_PASSWORD:1937}
     hikari:
       initializationFailTimeout: 60000
   kafka.bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}

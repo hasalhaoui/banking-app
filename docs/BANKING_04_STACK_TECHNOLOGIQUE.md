@@ -179,7 +179,7 @@ Le profil `dev` actuel utilise:
 ```text
 DB_URL=jdbc:postgresql://localhost:5432/<service_db>
 DB_USERNAME=postgres
-DB_PASSWORD=1999
+DB_PASSWORD=1937
 KAFKA_BOOTSTRAP_SERVERS=localhost:9092
 JWT_SECRET=dev-banking-secret-change-me-at-least-32-bytes
 APP_ALLOWED_ORIGIN=http://localhost:8080
